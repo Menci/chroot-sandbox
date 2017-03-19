@@ -40,7 +40,11 @@ module.exports = class Sandbox {
     if (!mask) mask = 777;
     if (!targetFilename) targetFilename = path.basename(file);
     let s = path.join(this.userDir, targetFilename);
-    execute('cp', '-r', file, s);
+    if (Buffer.isBuffer(file)) {
+      fs.writeFileSync(s, file);
+    } else {
+      execute('cp', '-r', file, s);
+    }
     execute('chown', '-R', '2333:2333', s);
     execute('chmod', '-R', mask.toString(), s);
     return path.join('/sandbox', targetFilename);
