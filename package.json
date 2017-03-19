@@ -1,0 +1,28 @@
+{
+  "name": "chroot-sandbox",
+  "version": "0.0.1",
+  "description": "Run unsafe program in chroot sandbox",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Menci/chroot-sandbox.git"
+  },
+  "keywords": [
+    "sandbox",
+    "chroot",
+    "posix",
+    "linux"
+  ],
+  "author": "Menci",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Menci/chroot-sandbox/issues"
+  },
+  "homepage": "https://github.com/Menci/chroot-sandbox#readme",
+  "dependencies": {
+    "tmp": "0.0.31"
+  }
+}
