@@ -8,6 +8,10 @@ function execute () {
   child_process.execSync(shellEscape(Array.from(arguments)), { stdio: [0, 1, 2] });
 }
 
+function executePiped (cmd1, cmd2) {
+  child_process.execSync(shellEscape(cmd1) + ' | ' + shellEscape(cmd2), { stdio: [0, 1, 2] });
+}
+
 module.exports = class Sandbox {
   constructor (uid, binds) {
     this.uid = (parseInt(uid) || 2333).toString();
@@ -101,7 +105,7 @@ module.exports = class Sandbox {
     if (options.network) {
       execute('sh', '-c', cmd);
     } else {
-      execute('unshare', '-n', 'sh', '-c', cmd);
+      executePiped(['echo', cmd], ['unshare', '-n', 'sh']);
     }
 
     function parseResult (result) {
