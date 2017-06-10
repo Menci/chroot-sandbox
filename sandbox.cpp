@@ -11,9 +11,6 @@
 #include <sys/resource.h>
 #include <sys/types.h>
 
-const uid_t SANDBOX_UID = 2333;
-const gid_t SANDBOX_GID = 2333;
-
 unsigned long parse_long(char *str) {
     unsigned long x = 0;
     for (char *p = str; *p; p++) x = x * 10 + *p - '0';
@@ -32,9 +29,9 @@ void *watcher_thread(void *arg) {
 }
 
 int main(int argc, char **argv) {
-    if (argc != 13 + 1) {
-        fprintf(stderr, "Error: need 13 arguments, got %d (first = %s, last = %s)\n", argc - 1, argv[1], argv[argc - 1]);
-        fprintf(stderr, "Usage: %s chroot_dir program file_stdin file_stdout file_stderr time_limit time_limit_reserve memory_limit memory_limit_reserve large_stack output_limit process_limit file_result\n", argv[0]);
+    if (argc != 14 + 1) {
+        fprintf(stderr, "Error: need 14 arguments, got %d (first = %s, last = %s)\n", argc - 1, argv[1], argv[argc - 1]);
+        fprintf(stderr, "Usage: %s chroot_dir program file_stdin file_stdout file_stderr time_limit time_limit_reserve memory_limit memory_limit_reserve large_stack output_limit process_limit uid file_result\n", argv[0]);
         return 1;
     }
 
@@ -48,14 +45,15 @@ int main(int argc, char **argv) {
          *file_stdin = argv[3],
          *file_stdout = argv[4],
          *file_stderr = argv[5],
-         *file_result = argv[13];
+         *file_result = argv[14];
     long time_limit = parse_long(argv[6]),
          time_limit_reserve = parse_long(argv[7]),
          memory_limit = parse_long(argv[8]),
          memory_limit_reserve = parse_long(argv[9]),
          large_stack = parse_long(argv[10]),
          output_limit = parse_long(argv[11]),
-         process_limit = parse_long(argv[12]);
+         process_limit = parse_long(argv[12]),
+         uid = parse_long(argv[13]);
 
     time_limit_to_watch = time_limit + time_limit_reserve;
 
@@ -166,9 +164,10 @@ int main(int argc, char **argv) {
         puts("Entered chdir.");
 #endif
 
-        setgid(SANDBOX_GID);
-        setgroups(1, &SANDBOX_GID);
-        setuid(SANDBOX_UID);
+        setgid(uid);
+        gid_t gid = uid;
+        setgroups(1, &gid);
+        setuid(uid);
 
 #ifdef LOG
         puts("setuid / setgid / setgroups result:");

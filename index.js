@@ -9,7 +9,9 @@ function execute () {
 }
 
 module.exports = class Sandbox {
-  constructor (binds) {
+  constructor (uid, binds) {
+    this.uid = (parseInt(uid) || 2333).toString();
+
     this.tmpDir = tmp.dirSync();
     this.mounted = [];
 
@@ -24,7 +26,7 @@ module.exports = class Sandbox {
   reset () {
     execute('rm', '-rf', this.userDir);
     execute('mkdir', '-p', this.userDir);
-    execute('chown', '-R', '2333:2333', this.userDir);
+    execute('chown', '-R', `${this.uid}:${this.uid}`, this.userDir);
   }
 
   mountBind (src, dst, ro) {
@@ -45,7 +47,7 @@ module.exports = class Sandbox {
     } else {
       execute('cp', '-r', file, s);
     }
-    execute('chown', '-R', '2333:2333', s);
+    execute('chown', '-R', `${this.uid}:${this.uid}`, s);
     execute('chmod', '-R', mask.toString(), s);
     return path.join('/sandbox', targetFilename);
   }
@@ -92,6 +94,7 @@ module.exports = class Sandbox {
       parseInt(options.large_stack + 0).toString(),
       options.output_limit.toString(),
       options.process_limit.toString(),
+      this.uid,
       tmpFile.name
     ]);
 
@@ -120,7 +123,7 @@ module.exports = class Sandbox {
 
   destroy () {
     try {
-      execute('pkill', '-U', '2333');
+      execute('pkill', '-U', this.uid);
     } catch (e) {}
     for (let dst of this.mounted.reverse()) execute('umount', dst);
     execute('rm', '-rf', this.dir);
